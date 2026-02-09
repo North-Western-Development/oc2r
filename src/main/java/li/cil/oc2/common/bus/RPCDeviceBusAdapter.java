@@ -18,6 +18,9 @@ import li.cil.sedna.api.device.Steppable;
 import li.cil.sedna.api.device.serial.SerialDevice;
 import li.cil.oc2.api.bus.device.object.*;
 import javax.annotation.Nullable;
+
+import org.apache.logging.log4j.LogManager;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
@@ -46,6 +49,7 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
     private final Set<RPCDeviceList> unmountedDevices = new HashSet<>();
     private final Set<RPCDeviceList> mountedDevices = new HashSet<>();
     private final Lock pauseLock = new ReentrantLock();
+    private final Object receiveLock = new Object(); // Lock object for receive buffer
     private boolean isPaused;
     private boolean crmode = false;
     private final ArrayList<RPCEventSource> subscriptions = new ArrayList<>();
@@ -65,6 +69,7 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
     public RPCDeviceBusAdapter(final SerialDevice serialDevice, final int maxMessageSize) {
         this.serialDevice = serialDevice;
         this.transmitBuffer = ByteBuffer.allocate(maxMessageSize);
+        this.receiveBuffer = ByteBuffer.allocate(maxMessageSize);
         this.gson = RPCMethodParameterTypeAdapters.beginBuildGson()
             .registerTypeAdapter(byte[].class, new UnsignedByteArrayJsonSerializer())
             .registerTypeAdapter(MethodInvocation.class, new MethodInvocationJsonDeserializer())
@@ -107,7 +112,7 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
 
     public void reset() {
         transmitBuffer.clear();
-        receiveBuffer = null;
+        receiveBuffer.clear();
         synchronizedInvocation = null;
     }
 
@@ -122,6 +127,13 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
     }
 
     public void resume(final DeviceBusController controller, final boolean didDevicesChange) {
+        // Fix for upgrade from pre-event-support.  Ideally this would be done on deserialization, but Ceres doesn't
+        // have a hook for that, and this should at least run before the buffer is needed.
+        if (receiveBuffer == null) {
+            // Default receive buffer size is the same as transmitBuffer capacity
+            receiveBuffer = ByteBuffer.allocate(transmitBuffer.capacity());
+        }
+
         isPaused = false;
 
         if (!didDevicesChange) {
@@ -210,7 +222,8 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
 
             // This is also used to prevent thread from processing messages, so only
             // reset this when we're done. Otherwise, we may get a race-condition when
-            // writing back data.
+            // writing back data, which would not cause interleaved messages but might
+            // confuse which results go with which method call.
             synchronizedInvocation = null;
         }
     }
@@ -242,12 +255,24 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
     }
 
     private void readFromDevice() {
-        // Only ever allow one pending message to avoid giving the VM the
-        // power of uncontrollably inflating memory usage. Basically any
-        // method of limiting the write queue size would work, but this is
-        // the most simple and easy to maintain one I could think of.
+        // Early return if we don't want to handle a new message.
+        // 1. Make sure receiveBuffer is empty so we can almost certainly write results back (not a guarantee if events
+        // are posted at the wrong time, especially if a device posts events while handling a method, but should be fine
+        // if there is no misbehaving device).
+        // 2. Make sure there is no pending synchronized method invocation so we only need to deal with one at once and
+        // we can be sure we respond to methods in the order called.
+        // Note that a synchronized method invocation is much more likely to have unrelated events post between the call
+        // and the results.
+        synchronized (receiveLock) {
+            if (receiveBuffer.position() != 0 || synchronizedInvocation != null) {
+                return;
+            }
+        }
+
         int value;
-        while (receiveBuffer == null && synchronizedInvocation == null && (value = serialDevice.read()) >= 0) {
+        // Only ever read one message at a time.  The first early return check *will* be invalidated by processing a
+        // message and the second also could be
+        while ((value = serialDevice.read()) >= 0) {
             if (value == 0 || value == 13) {
                 this.crmode = value == 13;
                 if (transmitBuffer.limit() > 0) {
@@ -271,19 +296,16 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
     }
 
     private void writeToDevice() {
-        if (receiveBuffer == null) {
-            return;
-        }
+        synchronized (receiveLock) {
+            receiveBuffer.flip();
 
-        while (receiveBuffer.hasRemaining() && serialDevice.canPutByte()) {
-            serialDevice.putByte(receiveBuffer.get());
-        }
+            while (receiveBuffer.hasRemaining() && serialDevice.canPutByte()) {
+                serialDevice.putByte(receiveBuffer.get());
+            }
 
+            receiveBuffer.compact();
+        }
         serialDevice.flush();
-
-        if (!receiveBuffer.hasRemaining()) {
-            receiveBuffer = null;
-        }
     }
 
     private void processMessage(final byte[] messageData) {
@@ -458,35 +480,55 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
     }
 
     private void writeMessage(final String type, @Nullable final Object data) {
-        if (receiveBuffer != null) throw new IllegalStateException();
         final String json = gson.toJson(new Message(type, data));
         final byte[] bytes = json.getBytes();
-        final ByteBuffer receiveBuffer = ByteBuffer.allocate(bytes.length + MESSAGE_DELIMITER.length * 2);
+        final int messageLength = bytes.length + MESSAGE_DELIMITER.length * 2;
+        synchronized (receiveLock) {
+            if (receiveBuffer.remaining() < messageLength) {
+                // Decide whether to resize or not
+                // The current heuristic is to resize for a large message (because
+                // that is probably intended by a mod author) and not for many small
+                // messages (because a computer user could use unlimited memory that
+                // way).
+                boolean reallocate = (receiveBuffer.capacity() <= messageLength);
+                LogManager.getLogger().warn(
+                    "Attempted to send {} message without enough space (size {}, remaining {}), {}",
+                    type, messageLength, receiveBuffer.remaining(),
+                    reallocate ? "reallocating" : "ignoring");
 
-        // In case we went through a reset and the VM was in the middle of reading
-        // a message we inject a delimiter up front to cause the truncated message
-        // to be discarded.
-        if (this.crmode) {
-            receiveBuffer.put(MESSAGE_DELIMITER2);
-        }
-        else {
-            receiveBuffer.put(MESSAGE_DELIMITER);
-        }
+                if (!reallocate) {
+                    // Note: There is nothing that indicates to either the VM or the peripheral that a message was eaten
+                    return;
+                }
 
-        receiveBuffer.put(bytes);
+                ByteBuffer newReceiveBuffer = ByteBuffer.allocate(messageLength * 2);
+                newReceiveBuffer.put(receiveBuffer.flip());
+                receiveBuffer = newReceiveBuffer;
+                assert(messageLength < receiveBuffer.remaining());
+            }
 
-        // We follow up each message with a delimiter, too, so the VM knows when the
-        // message has been completed. This will lead to two delimiters between most
-        // messages. The VM is expected to ignore such "empty" messages.
-        if (this.crmode) {
-            receiveBuffer.put(MESSAGE_DELIMITER2);
-        }
-        else {
-            receiveBuffer.put(MESSAGE_DELIMITER);
-        }
+            // In case we went through a reset and the VM was in the middle of reading
+            // a message we inject a delimiter up front to cause the truncated message
+            // to be discarded.
+            if (this.crmode) {
+                receiveBuffer.put(MESSAGE_DELIMITER2);
+            }
+            else {
+                receiveBuffer.put(MESSAGE_DELIMITER);
+            }
 
-        receiveBuffer.flip();
-        this.receiveBuffer = receiveBuffer;
+            receiveBuffer.put(bytes);
+
+            // We follow up each message with a delimiter, too, so the VM knows when the
+            // message has been completed. This will lead to two delimiters between most
+            // messages. The VM is expected to ignore such "empty" messages.
+            if (this.crmode) {
+                receiveBuffer.put(MESSAGE_DELIMITER2);
+            }
+            else {
+                receiveBuffer.put(MESSAGE_DELIMITER);
+            }
+        }
     }
 
     ///////////////////////////////////////////////////////////////////
