@@ -8,14 +8,18 @@ class Device:
     def __init__(self, device_bus, device_id):
         self.bus = device_bus
         self.device_id = device_id
-        self.methods = None
+        self._methods = None
+
+    @property
+    def methods(self):
+        if self._methods is None:
+            self._methods = self.bus.methods(self.device_id)
+        return self._methods
 
     def __getattr__(self, item):
         return lambda *args: self.bus.invoke(self.device_id, item, *args)
 
     def __str__(self):
-        if self.methods is None:
-            self.methods = self.bus.methods(self.device_id)
         doc = ""
         for method in self.methods:
             doc += method["name"] + "("
