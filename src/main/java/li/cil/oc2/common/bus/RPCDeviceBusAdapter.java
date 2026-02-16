@@ -16,7 +16,6 @@ import li.cil.oc2.common.bus.device.rpc.RPCMethodParameterTypeAdapters;
 import li.cil.oc2.common.serialization.gson.*;
 import li.cil.sedna.api.device.Steppable;
 import li.cil.sedna.api.device.serial.SerialDevice;
-import li.cil.oc2.api.bus.device.object.*;
 import javax.annotation.Nullable;
 
 import org.apache.logging.log4j.LogManager;
@@ -38,6 +37,7 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
     public static final String ERROR_UNKNOWN_DEVICE = "unknown device";
     public static final String ERROR_UNKNOWN_METHOD = "unknown method";
     public static final String ERROR_INVALID_PARAMETER_SIGNATURE = "invalid parameter signature";
+    public static final String ERROR_SUBSCRIPTIONS_NOT_SUPPORTED = "device does not support subscriptions";
 
     ///////////////////////////////////////////////////////////////////
 
@@ -171,10 +171,10 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
         devicesByIdentifier.forEach((identifier, devices) -> {
             final RPCDeviceList device = new RPCDeviceList(devices);
 
-            // If there are no methods we have either no devices at all, or all synthetic
-            // devices, i.e. devices that only contribute type names, but have no methods
-            // to call. We do not expose these to avoid cluttering the device list.
-            if (device.getMethodGroups().isEmpty()) {
+            // If there are no methods or events we have either no devices at all, or all
+            // synthetic devices, i.e. devices that only contribute type names, but have
+            // no functionality. We do not expose these to avoid cluttering the device list.
+            if (device.getMethodGroups().isEmpty() && device.asEventSource() == null) {
                 return;
             }
 
@@ -361,44 +361,34 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
 
     private void subscribe(final UUID deviceId) {
         RPCDeviceList devices = devicesById.get(deviceId);
-        if (devices != null) {
-            for (RPCDevice device : devices.getDevices()) {
-                if (device instanceof ObjectDevice od) {
-                    RPCEventSource res = od.asEventSource();
-                    if (res != null) {
-                        res.subscribe(this, deviceId);
-                        subscriptions.add(res);
-                        return;
-                    }
-                }
-                if (device instanceof RPCEventSource res) {
-                    res.subscribe(this, deviceId);
-                    subscriptions.add(res);
-                    return;
-                }
-            }
-            writeError("device does not support subscriptions");
+        if (devices == null) {
+            writeError(ERROR_UNKNOWN_DEVICE);
+            return;
         }
-        else {
-            writeError("unknown device");
+        RPCEventSource res = devices.asEventSource();
+        if (res == null) {
+            writeError(ERROR_SUBSCRIPTIONS_NOT_SUPPORTED);
         }
+
+        res.subscribe(this, deviceId);
+        subscriptions.add(res);
+        writeMessage(Message.MESSAGE_TYPE_SUBSCRIBE, null);
     }
+
     private void unsubscribe(final UUID deviceId) {
         RPCDeviceList devices = devicesById.get(deviceId);
-        if (devices != null) {
-            for (RPCDevice device : devices.getDevices()) {
-                if (device instanceof RPCEventSource res) {
-                    res.unsubscribe(this);
-                    subscriptions.remove(res);
-                }
-                else {
-                    writeError("device does not support subscriptions");
-                }
-            }
+        if (devices == null) {
+            writeError(ERROR_UNKNOWN_DEVICE);
+            return;
         }
-        else {
-            writeError("unknown device");
+        RPCEventSource res = devices.asEventSource();
+        if (res == null) {
+            writeError(ERROR_SUBSCRIPTIONS_NOT_SUPPORTED);
         }
+
+        res.unsubscribe(this);
+        subscriptions.remove(res);
+        writeMessage(Message.MESSAGE_TYPE_UNSUBSCRIBE, null);
     }
 
     private void processMethodInvocation(final MethodInvocation methodInvocation, final boolean isMainThread) {

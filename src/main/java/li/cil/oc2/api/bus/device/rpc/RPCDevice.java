@@ -8,6 +8,8 @@ import li.cil.oc2.api.bus.device.object.ObjectDevice;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 /**
  * Provides an interface for an RPC device, describing the methods that can be
  * called on it and the type names it can be detected by/is compatible with.
@@ -71,6 +73,25 @@ public interface RPCDevice extends Device {
      * @return the list of method groups.
      */
     List<RPCMethodGroup> getMethodGroups();
+
+    /**
+     * Get an {@link RPCEventSource} that handles events for this device, if any
+     *
+     * By default, returns {@code this} if it's an event source, but can be overriden if the event source and the device
+     * are different objects.
+     *
+     * @return An {@link RPCEventSource} that can be used for subscription and unsubscription, or {@code null} if
+     * subscriptions are not supported.
+     */
+    @Nullable
+    default RPCEventSource asEventSource() {
+        if (this instanceof RPCEventSource res) {
+            return res;
+        }
+        else {
+            return null;
+        }
+    }
 
     /**
      * Called to start this device.

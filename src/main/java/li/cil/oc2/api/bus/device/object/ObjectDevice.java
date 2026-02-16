@@ -84,6 +84,7 @@ public final class ObjectDevice implements RPCDevice, ItemDevice {
     }
 
     ///////////////////////////////////////////////////////////////////
+    @Override
     public RPCEventSource asEventSource() {
         if (object instanceof RPCEventSource res) {
             return res;
