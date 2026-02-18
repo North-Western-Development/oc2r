@@ -308,7 +308,21 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
     }
 
     private void processMessage(final byte[] messageData) {
-        if (new String(messageData).trim().isEmpty()) {
+        // HACK: Linux thinks the RPC bus is a TTY, and when all file descriptors to it are closed and then one is
+        // opened again, the kernel resets the termios attributes and *turns on echo*. This sends a bunch of mangled
+        // garbage back down the bus to end up here. Part of the mangling is replacing control characters, including
+        // replacing the default message delimiter with "^@", so we can try to detect it. This doesn't work in crmode
+        // and it's a bit of a hack to try to catch here
+        //
+        // Medium term solution: keep a file descriptor open on Linux all the time, so the `stty` stuff only needs to be
+        // done once and echo doesn't turn back on.  Also make a human-readable symlink from /dev/oc2r/rpc to /dev/hvc0,
+        // both because of the benefit of being human-readable (see also: /dev/disk/by-label with udev), and to ease the
+        // transition for the longer-term solution.
+        // Longer-term solution: Add an option to VirtIOConsoleDevice to present as a non-tty port; I have a proof of
+        // concept for that but it needs more work.  This would move the bus to /dev/vport0p0, but the symlink can help
+        // ease the transition.
+        String messageString = new String(messageData).trim();
+        if (messageString.isEmpty() || messageString.startsWith("^@")) {
             return;
         }
 
