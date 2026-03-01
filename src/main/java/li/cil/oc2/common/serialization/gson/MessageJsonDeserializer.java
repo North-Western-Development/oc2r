@@ -21,7 +21,8 @@ public final class MessageJsonDeserializer implements JsonDeserializer<RPCDevice
             case RPCDeviceBusAdapter.Message.MESSAGE_TYPE_INVOKE_METHOD -> context.deserialize(jsonObject.getAsJsonObject("data"), RPCDeviceBusAdapter.MethodInvocation.class);
             default -> throw new JsonParseException(RPCDeviceBusAdapter.ERROR_UNKNOWN_MESSAGE_TYPE + messageType);
         };
+        final long messageSequenceNumber = jsonObject.has("seq") ? jsonObject.getAsJsonPrimitive("seq").getAsLong() : -1;
 
-        return new RPCDeviceBusAdapter.Message(messageType, messageData);
+        return new RPCDeviceBusAdapter.Message(messageType, messageData, messageSequenceNumber);
     }
 }

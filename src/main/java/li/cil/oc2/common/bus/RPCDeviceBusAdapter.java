@@ -58,6 +58,7 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
     @Serialized private final ByteBuffer transmitBuffer; // for data written to device by VM
     @Serialized private ByteBuffer receiveBuffer; // for data written by device to VM
     @Serialized private MethodInvocation synchronizedInvocation; // pending main thread invocation
+    @Serialized private volatile long sequenceNumber = 0;
 
     ///////////////////////////////////////////////////////////////////
 
@@ -113,6 +114,7 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
         transmitBuffer.clear();
         receiveBuffer.clear();
         synchronizedInvocation = null;
+        sequenceNumber = 0;
     }
 
     public void pause() {
@@ -483,10 +485,11 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
     }
 
     private void writeMessage(final String type, @Nullable final Object data) {
-        final String json = gson.toJson(new Message(type, data));
-        final byte[] bytes = json.getBytes();
-        final int messageLength = bytes.length + MESSAGE_DELIMITER.length * 2;
+        // Start synchronization here to also include sequenceNumber increment
         synchronized (receiveLock) {
+            final String json = gson.toJson(new Message(type, data, sequenceNumber++));
+            final byte[] bytes = json.getBytes();
+            final int messageLength = bytes.length + MESSAGE_DELIMITER.length * 2;
             if (receiveBuffer.remaining() < messageLength) {
                 // Decide whether to resize or not
                 // The current heuristic is to resize for a large message (because
@@ -500,7 +503,8 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
                     reallocate ? "reallocating" : "ignoring");
 
                 if (!reallocate) {
-                    // Note: There is nothing that indicates to either the VM or the peripheral that a message was eaten
+                    // Return without writing anything.  We already incremented sequenceNumber, so the VM can know
+                    // something was missed when it reads the next message actually present.
                     return;
                 }
 
@@ -540,7 +544,7 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
 
     public record EmptyMethodGroup(String name) { }
 
-    public record Message(String type, @Nullable Object data) {
+    public record Message(String type, @Nullable Object data, long seq) {
         // Device -> VM
         public static final String MESSAGE_TYPE_LIST = "list";
         public static final String MESSAGE_TYPE_METHODS = "methods";

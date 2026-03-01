@@ -91,9 +91,11 @@ the built-in `RedstoneInterfaceBlockEntity` device.
 - If subscriptions are used on or before OC2R version 2.2.12, they can cause a server crash if too many messages are
   sent at once. To be safe, do not send any event in the same tick as another message, or depend on a later minimum
   version of OC2R.
-- Right now, if a lot of messages are sent and the VM does not listen for them, some may be dropped, and there is no
-  indication to the device or VM when this happens. You cannot depend on the events being reliably delivered, and must
-  use some other communication channel if reliability is a requirement.
+- Right now, if a lot of messages are sent and the VM does not listen for them, some may be dropped; in theory the VM
+  can detect this, but none of the existing libraries do (see next point). You cannot depend on the events being
+  reliably delivered, and must use some other communication channel if reliability is a requirement.  A method call
+  should not have this issue unless the results and all the (subscribed to) events in that tick put together are more
+  than 4 KiB, though be aware that if the method call causes a state change, that might itself cause some events.
 - The on-the-"wire" event and subscription format is probably stable, but the VM's userspace python and lua libraries do
   not easily support them yet, and often silently discard events when expecting a different sort of message. Better
   support is actively being worked on.
