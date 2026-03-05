@@ -4,6 +4,17 @@ import select
 import json
 
 
+class RPCBusError(Exception):
+    def __init__(self, data):
+        super().__init__(f"error on RPC bus: {data}")
+        self.data = data
+
+class MessageTypeError(Exception):
+    def __init__(self, message):
+        super().__init__(f"unexpected message type: {message['type']}")
+        self.type = message['type']
+        self.message = message
+
 class Device:
     def __init__(self, device_bus, device_id):
         self.bus = device_bus
@@ -151,9 +162,10 @@ class DeviceBus:
             else:
                 return
         elif data["type"] == "error":
-            raise Exception(data["data"])
+            raise RPCBusError(data["data"])
         else:
-            raise Exception("unexpected message type: %s" % data["type"])
+            raise MessageTypeError(data)
+
 
     def _buffer_remaining(self):
         return len(self._buffer) - self._buffer_pos
