@@ -176,12 +176,16 @@ class DeviceBus:
         self._buffer = self._read(1024)
         self._buffer_pos = 0
 
+    def _has_file_data(self):
+        '''Check if there is data available on the bus without blocking'''
+        return len(self.poll.poll(0)) > 0
+
     def _read(self, limit):
         # This is horrible, but don't know how to know how many bytes are available,
         # so reading one by one is necessary to avoid blocking.
         data = bytearray()
         bytesRead = 0
-        while bytesRead < limit and len(self.poll.poll(0)) > 0:
+        while bytesRead < limit and self._has_file_data():
             data.extend(self.file.read(1))
             bytesRead += 1
         return data
@@ -189,7 +193,7 @@ class DeviceBus:
     def _skip_input(self):
         # This is horrible, but don't know how to know how many bytes are available,
         # so reading one by one is necessary to avoid blocking.
-        while len(self.poll.poll(0)) > 0:
+        while self._has_file_data():
             self.file.read(1)
 
 
