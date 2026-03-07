@@ -5,10 +5,11 @@ package li.cil.oc2.api.util;
 import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
 
-import javax.annotation.Nullable;
+import com.google.gson.annotations.SerializedName;
 
 /**
- * This enum indicates a side of a block device.
+ * This enum indicates a side of a block device. It can be either a local side (eg. {@code FRONT}) or a global side
+ * (eg. {@code SOUTH}.
  * <p>
  * It is intended to be used by {@link li.cil.oc2.api.bus.device.rpc.RPCDevice} APIs,
  * providing both convenience for the caller by providing a range of aliases, and also
@@ -16,63 +17,61 @@ import javax.annotation.Nullable;
  * enum at some time in the future.
  */
 public enum Side {
-    DOWN(Direction.DOWN),
-    down(DOWN),
-    d(DOWN),
+    // Vertical: Primarily global but also used for local
+    @SerializedName(value="down", alternate={"BOTTOM", "bottom", "DOWN", "d"}) DOWN(Direction.DOWN),
+    @SerializedName(value="up", alternate={"TOP", "top", "UP", "u"}) UP(Direction.UP),
 
-    UP(Direction.UP),
-    up(UP),
-    u(UP),
+    // Horizontal, global only
+    @SerializedName(value="north", alternate={"NORTH", "n"}) NORTH(Direction.NORTH),
+    @SerializedName(value="south", alternate={"SOUTH", "s"}) SOUTH(Direction.SOUTH),
+    @SerializedName(value="west", alternate={"WEST", "w"}) WEST(Direction.WEST),
+    @SerializedName(value="east", alternate={"EAST", "e"}) EAST(Direction.EAST),
 
-    NORTH(Direction.NORTH),
-    north(NORTH),
-    n(NORTH),
-    BACK(NORTH),
-    back(NORTH),
-    b(NORTH),
-
-    SOUTH(Direction.SOUTH),
-    south(SOUTH),
-    s(SOUTH),
-    FRONT(SOUTH),
-    front(SOUTH),
-    f(SOUTH),
-
-    WEST(Direction.WEST),
-    west(WEST),
-    w(WEST),
-    LEFT(WEST),
-    left(WEST),
-    l(WEST),
-
-    EAST(Direction.EAST),
-    east(EAST),
-    e(EAST),
-    RIGHT(EAST),
-    right(EAST),
-    r(EAST),
+    // Horizontal, local only
+    @SerializedName(value="back", alternate={"BACK", "b"}) BACK(Direction.NORTH, true),
+    @SerializedName(value="front", alternate={"FRONT", "f"}) FRONT(Direction.SOUTH, true),
+    @SerializedName(value="left", alternate={"LEFT", "l"}) LEFT(Direction.WEST, true),
+    @SerializedName(value="right", alternate={"RIGHT", "r"}) RIGHT(Direction.EAST, true),
     ;
 
-    @Nullable private final Side base;
     private final Direction direction;
+    private final boolean local;
 
     Side(final Direction direction) {
-        this.base = null;
+        this(direction, false);
+    }
+
+    Side(final Direction direction, final boolean local) {
         this.direction = direction;
+        this.local = local;
     }
 
-    Side(final Side side) {
-        this.base = side;
-        this.direction = side.direction;
-    }
-
+    // Getters
+    /**
+     * Get the base minecraft {@link Direction} this block {@code Side} is built from.
+     * <p>
+     * Note that this method does not understand rotation.  If this is a relative {@code Side} (eg. {@code FRONT}), then
+     * the return value will only make sense for a block facing South.
+     *
+     * @return The base absolute direction this Side is built from.
+     */
     public Direction getDirection() {
         return direction;
     }
 
+    /**
+     * Whether this specifies a local direction that changes with 2d orientation (eg {@code FRONT}, or a fixed global
+     * direction (eg {code #SOUTH}).
+     * <p>
+     * Note that {@code UP} and {@code DOWN} can usually be used as local directions but are technically global.
+     */
+    public boolean isLocal() {
+        return local;
+    }
+
     @Override
     public String toString() {
-        return base != null ? base.toString() : super.toString();
+        return super.toString().toLowerCase();
     }
 
     public static Direction relativeDirection(BlockPos from, BlockPos to) {
