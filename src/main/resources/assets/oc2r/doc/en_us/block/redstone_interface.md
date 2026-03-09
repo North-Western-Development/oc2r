@@ -14,14 +14,17 @@ This is a high level device. It must be controlled using the high level device A
 Device name: *redstone*
 
 ### Sides
-The side parameter in the following methods represents a side local to the device block. Valid values are: *up*, *down*, *left*, *right*, *front*, *back*, *north*, *south*, *west* and *east*.
+The side parameter in the following methods represents a side of the device block. The valid values are listed below.
+Some variations of these names, such as just using the first letter, also work, as do the numbers 0 through 9 for the
+sides *down*, *up*, *north*, *south*, *west*, *east*, *back*, *front*, *left*, and *right* in that order.
 
-Each face of the block has an indicator for convenience. Side names represent the names with the block seen from the primary face (indicated by a single marking). When looking at the primary face:
-- *front* and *south* is the face we are looking at.
-- *back* and *north* is the face behind the block.
-- *left* and *west* is the face to our left.
-- *right* and *east* is the face to our right.
-- *up* and *down* are the top and bottom faces.
+Each face of the block has an indicator for convenience. Local side names represent the names with the block seen from the primary face (indicated by a single marking). When looking at the primary face:
+- *front* is the face we are looking at (small dot).
+- *back* is the face behind the block (a line and a dot).
+- *left* is the face to our left (one line).
+- *right* is the face to our right (two lines).
+- *up* and *down* are the top and bottom faces (four dots on top, and no marking on bottom).
+- *north*, *south*, *west*, and *east* are the sides in those absolute directions.
 
 ### Methods
 *getRedstoneInput(side):number* gets the received redstone signal for the specified side.

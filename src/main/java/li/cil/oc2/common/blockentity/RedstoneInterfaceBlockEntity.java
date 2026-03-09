@@ -8,7 +8,6 @@ import li.cil.oc2.api.bus.device.object.Parameter;
 import li.cil.oc2.api.util.Side;
 import li.cil.oc2.common.Constants;
 import li.cil.oc2.common.integration.util.BundledRedstone;
-import li.cil.oc2.common.util.HorizontalBlockUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -82,10 +81,9 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
     }
 
     public int getOutputForDirection(final Direction direction) {
-        final Direction localDirection = HorizontalBlockUtils.toLocal(getBlockState(), direction);
-        assert localDirection != null;
+        final int localDirection = Side.fromGlobal(direction).toLocalIndex(getBlockState());
 
-        return output[localDirection.get3DDataValue()];
+        return output[localDirection];
     }
 
     @Callback(name = GET_REDSTONE_INPUT)
@@ -97,7 +95,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
         }
 
         final BlockPos pos = getBlockPos();
-        final Direction direction = HorizontalBlockUtils.toGlobal(getBlockState(), side);
+        final Direction direction = side.toGlobal(getBlockState());
         assert direction != null;
 
         final BlockPos neighborPos = pos.relative(direction);
@@ -112,7 +110,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
     @Callback(name = GET_REDSTONE_OUTPUT, synchronize = false)
     public int getRedstoneOutput(@Parameter(SIDE) @Nullable final Side side) {
         if (side == null) throw new IllegalArgumentException();
-        final int index = side.getDirection().get3DDataValue();
+        final int index = side.toLocalIndex(getBlockState());
 
         return output[index];
     }
@@ -120,7 +118,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
     @Callback(name = SET_REDSTONE_OUTPUT)
     public void setRedstoneOutput(@Parameter(SIDE) @Nullable final Side side, @Parameter(VALUES) final int value) {
         if (side == null) throw new IllegalArgumentException();
-        final int index = side.getDirection().get3DDataValue();
+        final int index = side.toLocalIndex(getBlockState());
 
         final byte clampedValue = (byte) Mth.clamp(value, 0, 15);
         if (clampedValue == output[index]) {
@@ -129,7 +127,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
 
         output[index] = clampedValue;
 
-        final Direction direction = HorizontalBlockUtils.toGlobal(getBlockState(), side);
+        final Direction direction = side.toGlobal(getBlockState());
         if (direction != null) {
             notifyNeighbor(direction);
         }
@@ -145,7 +143,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
 
         BundledRedstone bundledRedstone = BundledRedstone.getInstance();
         if (bundledRedstone.isAvailable()) {
-            return bundledRedstone.getBundledInput(this.level, this.getBlockPos(), side.getDirection().getOpposite());
+            return bundledRedstone.getBundledInput(this.level, this.getBlockPos(), side.toGlobal(getBlockState()));
         } else {
             return new byte[Constants.BLOCK_FACE_COUNT];
         }
@@ -156,7 +154,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
         if(!ModList.get().isLoaded("projectred_transmission")) throw new IllegalStateException();
         if (side == null) throw new IllegalArgumentException();
 
-        final int index = side.getDirection().get3DDataValue();
+        final int index = side.toLocalIndex(getBlockState());
         return bundled_output[index];
     }
 
@@ -166,7 +164,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
         if (side == null) throw new IllegalArgumentException();
 
         boolean changed = false;
-        final int index = side.getDirection().getOpposite().get3DDataValue();
+        final int index = side.toLocalIndex(getBlockState());
         final byte clampedValue = (byte) Mth.clamp(value, 0, 255);
         final byte clampedColor = (byte) Mth.clamp(color, 0, 15);
         /*for (int i=0; i < values.length; i++) {
@@ -183,7 +181,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
         }
 
         if (changed) {
-            final Direction direction = HorizontalBlockUtils.toGlobal(getBlockState(), side);
+            final Direction direction = side.toGlobal(getBlockState());
             if (direction != null) {
                 notifyNeighbor(direction);
             }
@@ -198,7 +196,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
         if (side == null) throw new IllegalArgumentException();
 
         boolean changed = false;
-        final int index = side.getDirection().getOpposite().get3DDataValue();
+        final int index = side.toLocalIndex(getBlockState());
         for (int i=0; i < values.length; i++) {
             final byte clampedValue = (byte) Mth.clamp(values[i], 0, 255);
             if (clampedValue != bundled_output[index][i]) {
@@ -208,7 +206,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
         }
 
         if (changed) {
-            final Direction direction = HorizontalBlockUtils.toGlobal(getBlockState(), side);
+            final Direction direction = side.toGlobal(getBlockState());
             if (direction != null) {
                 notifyNeighbor(direction);
             }
@@ -229,7 +227,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
                 "Note that if the current output level on the specified side is not " +
                 "zero, this will affect the measured level.\n" +
                 "Sides may be specified by name or zero-based index. Please note that " +
-                "the side depends on the orientation of the device.")
+                "the side may depend on the orientation of the device.")
             .returnValueDescription("the current received level on the specified side.")
             .parameterDescription(SIDE, "the side to read the input level from.");
 
@@ -237,13 +235,13 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
             .description("Get the current redstone level transmitted on the specified side. " +
                 "This will return the value last set via setRedstoneOutput().\n" +
                 "Sides may be specified by name or zero-based index. Please note that " +
-                "the side depends on the orientation of the device.")
+                "the side may depend on the orientation of the device.")
             .returnValueDescription("the current transmitted level on the specified side.")
             .parameterDescription(SIDE, "the side to read the output level from.");
         visitor.visitCallback(SET_REDSTONE_OUTPUT)
             .description("Set the new redstone level transmitted on the specified side.\n" +
                 "Sides may be specified by name or zero-based index. Please note that " +
-                "the side depends on the orientation of the device.")
+                "the side may depend on the orientation of the device.")
             .parameterDescription(SIDE, "the side to write the output level to.")
             .parameterDescription(VALUE, "the output level to set, will be clamped to [0, 15].");
 
@@ -258,14 +256,14 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
             visitor.visitCallback(SET_BUNDLED_OUTPUT)
                 .description("Set the new bundled level transmitted for a specific color on the specified side.\n" +
                     "Sides may be specified by name or zero-based index. Please note that " +
-                    "the side depends on the orientation of the device.")
+                    "the side may depend on the orientation of the device.")
                 .parameterDescription(SIDE, "the side to write the output level to.")
                 .parameterDescription(VALUE, "the output level to set, will be clamped to [0, 255].")
                 .parameterDescription(COLOUR, "the colour wire this sets, as int [0, 15]");
             visitor.visitCallback(SET_BUNDLED_OUTPUTS)
                 .description("Set the new bundled levels transmitted on the specified side.\n" +
                     "Sides may be specified by name or zero-based index. Please note that " +
-                    "the side depends on the orientation of the device.")
+                    "the side may depend on the orientation of the device.")
                 .parameterDescription(SIDE, "the side to write the output level to.")
                 .parameterDescription(VALUES, "the output levels to set in array form, each value will be clamped to [0, 255], 16 entries.");
         }
@@ -284,7 +282,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
 
     @Nullable
     public byte[] getBundledSignal(Direction direction) {
-        final int index = direction.get3DDataValue();
+        final int index = Side.fromGlobal(direction).toLocalIndex(getBlockState());
         return this.bundled_output[index];
     }
 
