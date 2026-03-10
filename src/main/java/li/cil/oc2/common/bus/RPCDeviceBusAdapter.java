@@ -4,7 +4,6 @@ package li.cil.oc2.common.bus;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import li.cil.ceres.api.Serialized;
 import li.cil.oc2.api.bus.DeviceBusController;
 import li.cil.oc2.api.bus.device.Device;
@@ -355,7 +354,7 @@ public final class RPCDeviceBusAdapter implements Steppable, IEventSink {
     }
 
     @Override
-    public void postEvent(UUID deviceid, JsonElement msg) {
+    public void postEvent(UUID deviceid, Object msg) {
         writeMessage(Message.MESSAGE_TYPE_EVENT, new Object[]{deviceid, msg});
     }
 

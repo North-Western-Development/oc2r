@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: MIT */
 
 package li.cil.oc2.api.bus.device.rpc;
-import com.google.gson.JsonElement;
 import java.util.UUID;
 
 /**
@@ -10,5 +9,11 @@ import java.util.UUID;
  */
 
 public interface IEventSink {
-    void postEvent(UUID sourceid, JsonElement msg);
+    /**
+     * Hand a message to the event sink to process
+     *
+     * @param sourceid The UUID of the originator, usually given by {@link RPCEventSource#subscribe(IEventSink, UUID)}
+     * @param msg The message. Should be serializable with gson
+     */
+    void postEvent(UUID sourceid, Object msg);
 }
