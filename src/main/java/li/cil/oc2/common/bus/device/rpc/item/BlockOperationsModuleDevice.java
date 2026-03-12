@@ -47,7 +47,7 @@ import java.util.List;
 public final class BlockOperationsModuleDevice extends AbstractItemRPCDevice {
     private static final String LAST_OPERATION_TAG_NAME = "cooldown";
 
-    private static final int COOLDOWN = TickUtils.toTicks(Duration.ofMillis(250));
+    private static final int COOLDOWN = TickUtils.toTicks(Duration.ofMillis((long) (Config.robotCooldown * 1000)));
 
     ///////////////////////////////////////////////////////////////////
 

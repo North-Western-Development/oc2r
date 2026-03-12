@@ -2,6 +2,7 @@
 
 package li.cil.oc2.common.entity.robot;
 
+import li.cil.oc2.common.config.Config;
 import li.cil.oc2.common.entity.Robot;
 import li.cil.oc2.common.util.NBTTagIds;
 import li.cil.oc2.common.util.NBTUtils;
@@ -18,7 +19,7 @@ public final class RobotRotationAction extends AbstractRobotAction {
 
     ///////////////////////////////////////////////////////////////////
 
-    private static final float ROTATION_SPEED = 90f / TickUtils.toTicks(Duration.ofSeconds(1)); // degrees per tick
+    private static final float ROTATION_SPEED = 90f / TickUtils.toTicks(Duration.ofMillis((long) (Config.robotCooldown * 1000))); // degrees per tick
 
     private static final String DIRECTION_TAG_NAME = "direction";
     private static final String TARGET_TAG_NAME = "start";

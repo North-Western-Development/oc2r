@@ -49,6 +49,7 @@ public final class Config {
 
     public static ResourceLocation blockOperationsModuleToolTier = TierSortingRegistry.getName(Tiers.DIAMOND);
     public static long soundCardCoolDownSeconds = 2;
+    public static double robotCooldown = 1.0;
 
     public static UUID fakePlayerUUID = UUID.fromString("e39dd9a7-514f-4a2d-aa5e-b6030621416d");
     public static int projectorAverageMaxBytesPerSecond = 160 * 1024;
