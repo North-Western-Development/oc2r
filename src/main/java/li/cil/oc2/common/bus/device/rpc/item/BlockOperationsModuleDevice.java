@@ -78,6 +78,18 @@ public final class BlockOperationsModuleDevice extends AbstractItemRPCDevice {
     }
 
     @Callback
+    public BlockState getBlock() {
+        return getBlock(null);
+    }
+
+    @Callback
+    public BlockState getBlock(@Parameter("side") @Nullable final RobotOperationSide side) {
+        final Direction direction = RobotOperationSide.toGlobal(entity, side);
+        final BlockPos pos = entity.blockPosition().relative(direction);
+        return entity.level().getBlockState(pos);
+    }
+
+    @Callback
     public boolean excavate() {
         return excavate(null);
     }
