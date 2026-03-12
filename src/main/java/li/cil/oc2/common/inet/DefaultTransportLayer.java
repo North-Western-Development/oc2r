@@ -360,7 +360,9 @@ public final class DefaultTransportLayer implements TransportLayer {
 
     @Override
     public void onStop() {
-        for (final SessionBase session : sessions.values()) {
+        // Avoid concurrent modifications
+        final HashMap<SessionDiscriminator<?>, SessionBase> clone = new HashMap<>(sessions);
+        for (final SessionBase session : clone.values()) {
             session.expire();
             sessionLayer.sendSession(session, null);
             closeSession(session);
