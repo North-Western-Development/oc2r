@@ -290,13 +290,13 @@ public class StreamSessionImpl extends SessionBase implements StreamSession {
                     }
                 }
                 session.vmWindow = header.window;
-                if (header.psh) {
-                    // Data to be sent
-                    session.vmSequence += length;
-                    final ByteBuffer sendBuffer = session.sendBuffer;
-                    sendBuffer.compact();
-                    sendBuffer.put(segment);
-                    sendBuffer.flip();
+                // Data to be sent
+                session.vmSequence += length;
+                final ByteBuffer sendBuffer = session.sendBuffer;
+                sendBuffer.compact();
+                sendBuffer.put(segment);
+                sendBuffer.flip();
+                if (header.psh || length > 0) {
                     session.needsAcknowledgment = true;
                 }
                 if (header.fin) {

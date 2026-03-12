@@ -120,7 +120,7 @@ public class TcpHeader {
     }
 
     public boolean isAcceptanceOrRejectionAcknowledged() {
-        return !syn && !urg && ack && !psh && !rst && !fin;
+        return !syn && !urg && ack && !rst && !fin;
     }
 
     public void rejectConnection(final int sequence, final int acknowledgment) {
