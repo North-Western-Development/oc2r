@@ -315,6 +315,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
         JsonObject msg = new JsonObject();
         msg.addProperty("event", "redstone");
         msg.addProperty("side", ""+direction);
+        msg.addProperty("face", ""+Side.fromGlobal(direction).toLocal(getBlockState()));
         msg.addProperty("level", sl);
 
         for (var subscriber : subscribers.entrySet()) {
