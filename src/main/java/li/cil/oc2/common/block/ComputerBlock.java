@@ -13,6 +13,7 @@ import li.cil.oc2.common.capabilities.Capabilities;
 import li.cil.oc2.common.integration.Wrenches;
 import li.cil.oc2.common.item.Items;
 import li.cil.oc2.common.tags.ItemTags;
+import li.cil.oc2.common.util.HorizontalBlockUtils;
 import li.cil.oc2.common.util.TooltipUtils;
 import li.cil.oc2.common.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
@@ -107,8 +108,9 @@ public final class ComputerBlock extends HorizontalDirectionalBlock implements E
             var level = blockEntity.getLevel();
             if (level != null) {
                 // Redstone requests info for faces with external perspective. Capabilities treat
-                // the Direction from internal perspective, so flip it.
-                var cap = level.getCapability(Capabilities.RedstoneEmitter.BLOCK, blockEntity.getBlockPos(), null, blockEntity, side.getOpposite());
+                // the Direction from an internal and local perspective, so flip it, and transform it from global to
+                // local.
+                var cap = level.getCapability(Capabilities.RedstoneEmitter.BLOCK, blockEntity.getBlockPos(), null, blockEntity, HorizontalBlockUtils.toLocal(state, side.getOpposite()));
                 return Optional.ofNullable(cap)
                     .map(RedstoneEmitter::getRedstoneOutput)
                     .orElse(0);
