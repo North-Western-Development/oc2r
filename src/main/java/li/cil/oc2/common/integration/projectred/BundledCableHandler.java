@@ -49,6 +49,7 @@ public final class BundledCableHandler implements IBundledTileInteraction {
         }
     }
 
+    @Nullable
     public byte[] getBundledInput(final Level level, final BlockPos blockPos, final Direction direction) {
         return transmissionAPI.getBundledInput(level, blockPos, direction);
     }

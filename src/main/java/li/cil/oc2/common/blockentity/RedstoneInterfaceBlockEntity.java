@@ -146,10 +146,11 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
 
         BundledRedstone bundledRedstone = BundledRedstone.getInstance();
         if (bundledRedstone.isAvailable()) {
-            return bundledRedstone.getBundledInput(this.level, this.getBlockPos(), side.getDirection().getOpposite());
-        } else {
-            return new byte[Constants.BLOCK_FACE_COUNT];
+            final byte[] input = bundledRedstone.getBundledInput(this.level, this.getBlockPos(), side.getDirection().getOpposite());
+            if (input != null) return input;
         }
+
+        return new byte[Constants.BUNDLE_COLOR_COUNT];
     }
 
     @Callback(name = GET_BUNDLED_OUTPUT)
