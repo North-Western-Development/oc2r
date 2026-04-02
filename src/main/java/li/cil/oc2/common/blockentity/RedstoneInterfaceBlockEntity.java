@@ -46,7 +46,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
     ///////////////////////////////////////////////////////////////////
 
     private final byte[] output = new byte[Constants.BLOCK_FACE_COUNT];
-    private final byte[][] bundled_output = new byte[Constants.BLOCK_FACE_COUNT][16];
+    private final byte[][] bundled_output = new byte[Constants.BLOCK_FACE_COUNT][Constants.BUNDLE_COLOR_COUNT];
 
     ///////////////////////////////////////////////////////////////////
 

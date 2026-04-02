@@ -1,5 +1,6 @@
 package li.cil.oc2.common.integration.projectred;
 
+import li.cil.oc2.common.blockentity.ComputerBlockEntity;
 import li.cil.oc2.common.blockentity.RedstoneInterfaceBlockEntity;
 import li.cil.oc2.common.integration.util.BundledRedstone;
 import mrtjp.projectred.api.IBundledTileInteraction;
@@ -29,13 +30,13 @@ public final class BundledCableHandler implements IBundledTileInteraction {
     @Override
     public boolean isValidInteractionFor(final Level level, final BlockPos blockPos, final Direction direction) {
         BlockEntity entity = level.getBlockEntity(blockPos);
-        return (entity instanceof RedstoneInterfaceBlockEntity);
+        return (entity instanceof RedstoneInterfaceBlockEntity) || (entity instanceof ComputerBlockEntity);
     }
 
     @Override
     public boolean canConnectBundled(final Level level, final BlockPos blockPos, final Direction direction) {
         BlockEntity entity = level.getBlockEntity(blockPos);
-        return (entity instanceof RedstoneInterfaceBlockEntity);
+        return (entity instanceof RedstoneInterfaceBlockEntity) || (entity instanceof ComputerBlockEntity);
     }
 
     @Nullable
@@ -44,6 +45,8 @@ public final class BundledCableHandler implements IBundledTileInteraction {
         BlockEntity entity = level.getBlockEntity(blockPos);
         if (entity instanceof RedstoneInterfaceBlockEntity rs) {
             return rs.getBundledSignal(direction);
+        } else if (entity instanceof ComputerBlockEntity cbe) {
+            return cbe.getBundledSignal(direction);
         } else {
             return null;
         }

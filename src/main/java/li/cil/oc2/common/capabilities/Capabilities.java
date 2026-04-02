@@ -26,6 +26,9 @@ public final class Capabilities {
     public static final class RedstoneEmitter {
         public static final BlockCapability<li.cil.oc2.api.capabilities.RedstoneEmitter, @Nullable Direction> BLOCK = BlockCapability.createSided(ResourceLocation.fromNamespaceAndPath(API.MOD_ID, "redstone_emitter"), li.cil.oc2.api.capabilities.RedstoneEmitter.class);
     }
+    public static final class BundledEmitter {
+        public static final BlockCapability<li.cil.oc2.api.capabilities.BundledEmitter, @Nullable Direction> BLOCK = BlockCapability.createSided(ResourceLocation.fromNamespaceAndPath(API.MOD_ID, "bundled_emitter"), li.cil.oc2.api.capabilities.BundledEmitter.class);
+    }
     public static final class NetworkInterface {
         public static final BlockCapability<li.cil.oc2.api.capabilities.NetworkInterface, @Nullable Direction> BLOCK = BlockCapability.createSided(ResourceLocation.fromNamespaceAndPath(API.MOD_ID, "network_interface"), li.cil.oc2.api.capabilities.NetworkInterface.class);
     }

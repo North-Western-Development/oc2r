@@ -7,8 +7,11 @@ import li.cil.oc2.api.bus.DeviceBusElement;
 import li.cil.oc2.api.bus.device.Device;
 import li.cil.oc2.api.bus.device.DeviceTypes;
 import li.cil.oc2.api.bus.device.provider.ItemDeviceQuery;
+import li.cil.oc2.api.capabilities.BundledEmitter;
+import li.cil.oc2.api.capabilities.RedstoneEmitter;
 import li.cil.oc2.api.capabilities.TerminalUserProvider;
 import li.cil.oc2.client.audio.LoopingSoundManager;
+import li.cil.oc2.common.Constants;
 import li.cil.oc2.common.block.Blocks;
 import li.cil.oc2.common.components.DataComponents;
 import li.cil.oc2.common.components.RestrictedContainer;
@@ -366,6 +369,21 @@ public final class ComputerBlockEntity extends ModBlockEntity implements Termina
         // notify it, so we also send out a notification through our bus element, which
         // would be registered with other controllers in that case.
         busElement.scheduleScan();
+    }
+
+    @Nullable
+    public byte[] getBundledSignal(Direction direction) {
+        if (level != null) {
+            // Redstone requests info for faces with external perspective. Capabilities treat
+            // the Direction from an internal and local perspective, so flip it, and transform it from global to
+            // local.
+            var cap = level.getCapability(Capabilities.BundledEmitter.BLOCK, getBlockPos(), null, this, HorizontalBlockUtils.toLocal(getBlockState(), direction.getOpposite()));
+            return Optional.ofNullable(cap)
+                .map(BundledEmitter::getBundledOutput)
+                .orElse(new byte[Constants.BUNDLE_COLOR_COUNT]);
+        }
+
+        return new byte[Constants.BUNDLE_COLOR_COUNT];
     }
 
     ///////////////////////////////////////////////////////////////////
