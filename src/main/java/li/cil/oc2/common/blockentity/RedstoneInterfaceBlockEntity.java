@@ -158,7 +158,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
         if(!ModList.get().isLoaded("projectred_transmission")) throw new IllegalStateException();
         if (side == null) throw new IllegalArgumentException();
 
-        final int index = side.getDirection().get3DDataValue();
+        final int index = side.getDirection().getOpposite().get3DDataValue();
         return bundled_output[index];
     }
 
