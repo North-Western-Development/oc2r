@@ -374,10 +374,7 @@ public final class ComputerBlockEntity extends ModBlockEntity implements Termina
     @Nullable
     public byte[] getBundledSignal(Direction direction) {
         if (level != null) {
-            // Redstone requests info for faces with external perspective. Capabilities treat
-            // the Direction from an internal and local perspective, so flip it, and transform it from global to
-            // local.
-            var cap = level.getCapability(Capabilities.BundledEmitter.BLOCK, getBlockPos(), null, this, HorizontalBlockUtils.toLocal(getBlockState(), direction.getOpposite()));
+            var cap = level.getCapability(Capabilities.BundledEmitter.BLOCK, getBlockPos(), null, this, HorizontalBlockUtils.toLocal(getBlockState(), direction));
             return Optional.ofNullable(cap)
                 .map(BundledEmitter::getBundledOutput)
                 .orElse(new byte[Constants.BUNDLE_COLOR_COUNT]);

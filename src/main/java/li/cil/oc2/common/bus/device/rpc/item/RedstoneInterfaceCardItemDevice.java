@@ -195,7 +195,8 @@ public final class RedstoneInterfaceCardItemDevice extends AbstractItemRPCDevice
         if (level != null) {
             BundledRedstone bundledRedstone = BundledRedstone.getInstance();
             if (bundledRedstone.isAvailable()) {
-                final byte[] input = bundledRedstone.getBundledInput(level, blockEntity.getBlockPos(), side.getDirection().getOpposite());
+                final Direction direction = HorizontalBlockUtils.toGlobal(blockEntity.getBlockState(), side);
+                final byte[] input = bundledRedstone.getBundledInput(level, blockEntity.getBlockPos(), direction);
                 if (input != null) return input;
             }
         }
@@ -208,7 +209,7 @@ public final class RedstoneInterfaceCardItemDevice extends AbstractItemRPCDevice
         if(!ModList.get().isLoaded("projectred_transmission")) throw new IllegalStateException();
         if (side == null) throw new IllegalArgumentException();
 
-        final int index = side.getDirection().getOpposite().get3DDataValue();
+        final int index = side.getDirection().get3DDataValue();
         return bundled_output[index];
     }
 
@@ -218,7 +219,7 @@ public final class RedstoneInterfaceCardItemDevice extends AbstractItemRPCDevice
         if (side == null) throw new IllegalArgumentException();
 
         boolean changed = false;
-        final int index = side.getDirection().getOpposite().get3DDataValue();
+        final int index = side.getDirection().get3DDataValue();
         final byte clampedValue = (byte) Mth.clamp(value, 0, 255);
         final byte clampedColor = (byte) Mth.clamp(color, 0, 15);
         /*for (int i=0; i < values.length; i++) {
@@ -248,7 +249,7 @@ public final class RedstoneInterfaceCardItemDevice extends AbstractItemRPCDevice
         if (side == null) throw new IllegalArgumentException();
 
         boolean changed = false;
-        final int index = side.getDirection().getOpposite().get3DDataValue();
+        final int index = side.getDirection().get3DDataValue();
         for (int i=0; i < values.length; i++) {
             final byte clampedValue = (byte) Mth.clamp(values[i], 0, 255);
             if (clampedValue != bundled_output[index][i]) {
