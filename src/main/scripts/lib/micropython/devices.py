@@ -174,4 +174,4 @@ class DeviceBus:
 
 
 def bus():
-    return DeviceBus("/dev/hvc0")
+    return DeviceBus(os.getenv("OC2R_BUS_PATH", "/dev/hvc0"))
