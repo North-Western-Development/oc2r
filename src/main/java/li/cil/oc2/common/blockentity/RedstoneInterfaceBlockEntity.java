@@ -46,7 +46,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
     ///////////////////////////////////////////////////////////////////
 
     private final byte[] output = new byte[Constants.BLOCK_FACE_COUNT];
-    private final byte[][] bundled_output = new byte[Constants.BLOCK_FACE_COUNT][16];
+    private final byte[][] bundled_output = new byte[Constants.BLOCK_FACE_COUNT][Constants.BUNDLE_COLOR_COUNT];
 
     ///////////////////////////////////////////////////////////////////
 
@@ -146,10 +146,12 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
 
         BundledRedstone bundledRedstone = BundledRedstone.getInstance();
         if (bundledRedstone.isAvailable()) {
-            return bundledRedstone.getBundledInput(this.level, this.getBlockPos(), side.getDirection().getOpposite());
-        } else {
-            return new byte[Constants.BLOCK_FACE_COUNT];
+            final Direction direction = HorizontalBlockUtils.toGlobal(getBlockState(), side);
+            final byte[] input = bundledRedstone.getBundledInput(this.level, this.getBlockPos(), direction);
+            if (input != null) return input;
         }
+
+        return new byte[Constants.BUNDLE_COLOR_COUNT];
     }
 
     @Callback(name = GET_BUNDLED_OUTPUT)
@@ -167,7 +169,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
         if (side == null) throw new IllegalArgumentException();
 
         boolean changed = false;
-        final int index = side.getDirection().getOpposite().get3DDataValue();
+        final int index = side.getDirection().get3DDataValue();
         final byte clampedValue = (byte) Mth.clamp(value, 0, 255);
         final byte clampedColor = (byte) Mth.clamp(color, 0, 15);
         /*for (int i=0; i < values.length; i++) {
@@ -199,7 +201,7 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
         if (side == null) throw new IllegalArgumentException();
 
         boolean changed = false;
-        final int index = side.getDirection().getOpposite().get3DDataValue();
+        final int index = side.getDirection().get3DDataValue();
         for (int i=0; i < values.length; i++) {
             final byte clampedValue = (byte) Mth.clamp(values[i], 0, 255);
             if (clampedValue != bundled_output[index][i]) {
@@ -285,7 +287,9 @@ public final class RedstoneInterfaceBlockEntity extends ModBlockEntity implement
 
     @Nullable
     public byte[] getBundledSignal(Direction direction) {
-        final int index = direction.get3DDataValue();
+        final Direction local_direction = HorizontalBlockUtils.toLocal(getBlockState(), direction);
+        assert local_direction != null;
+        final int index = local_direction.get3DDataValue();
         return this.bundled_output[index];
     }
 

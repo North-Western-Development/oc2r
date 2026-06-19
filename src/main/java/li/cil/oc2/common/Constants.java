@@ -22,6 +22,8 @@ public final class Constants {
     public static final Direction.Axis[] AXES = Direction.Axis.values();
     public static final int BLOCK_FACE_COUNT = DIRECTIONS.length;
 
+    public static final int BUNDLE_COLOR_COUNT = 16;
+
     ///////////////////////////////////////////////////////////////////
 
     public static final String BLOCK_ENTITY_TAG_NAME_IN_ITEM = "BlockEntityTag";
