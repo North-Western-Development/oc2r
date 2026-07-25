@@ -60,7 +60,6 @@ public final class ItemGroup {
             output.accept(Items.FLOPPY_MODERN.get());
             output.accept(Items.REDSTONE_INTERFACE_CARD.get());
             output.accept(Items.INTERNET_CARD.get());
-            output.accept(Items.INTERNET_CARD.get());
             output.accept(Items.NETWORK_INTERFACE_CARD.get());
             output.accept(Items.NETWORK_TUNNEL_CARD.get());
             output.accept(Items.FILE_IMPORT_EXPORT_CARD.get());
@@ -75,8 +74,9 @@ public final class ItemGroup {
             output.accept(Items.TRANSISTOR.get());
             output.accept(Items.CIRCUIT_BOARD.get());
             //output.accept(Items.NETWORK_SWITCH.get());
-            //output.accept(Items.VXLAN_HUB.get());
-            //output.accept(Items.PCI_CARD_CAGE.get());
+            output.accept(Items.VXLAN_HUB.get());
+            output.accept(Items.PCI_CARD_CAGE.get());
+            output.accept(Items.INTERNET_GATEWAY.get());
         })
         .build()
     );

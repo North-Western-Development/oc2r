@@ -80,7 +80,7 @@ public final class PciCardCageBlock extends HorizontalDirectionalBlock implement
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(final Level level, final BlockState state, final BlockEntityType<T> type) {
-        return TickableBlockEntity.createServerTicker(level, type, BlockEntities.PROJECTOR.get());
+        return TickableBlockEntity.createServerTicker(level, type, BlockEntities.PCI_CARD_CAGE.get());
     }
 
     @SuppressWarnings("deprecation")

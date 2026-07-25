@@ -115,6 +115,15 @@ repositories {
             }
         }
     }
+    // Local Maven repository: when GitHub Packages credentials are not set,
+    // scripts/download-libs.sh populates libs/ with a Maven-style layout
+    // (e.g. libs/li/cil/ceres/ceres/0.0.4/ceres-0.0.4.jar). This lets the
+    // jarJar dependencies below resolve transparently — no code changes
+    // needed when switching between authenticated and unauthenticated builds.
+    maven {
+        name = "localLibs"
+        url = uri("libs")
+    }
     flatDir {
         dirs("libs")
     }
@@ -174,6 +183,9 @@ dependencies {
     // pick them up via the library mod due to the embed configuration).
     implementation fileTree(dir: 'libs', include: '*.jar')
 
+    // These three deps are hosted on GitHub Packages (when GITHUB_ACTOR /
+    // GITHUB_TOKEN are set) OR on the local Maven repo at libs/ (populated
+    // by scripts/download-libs.sh). Either way the coordinates are the same.
     jarJar(implementation('li.cil.ceres:ceres:0.0.4'))
     jarJar(implementation('li.cil.sedna:sedna:2.0.13'))
     jarJar(implementation('li.cil.sedna:sedna-buildroot:0.0.64'))

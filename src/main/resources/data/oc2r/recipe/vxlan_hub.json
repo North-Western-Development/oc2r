@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "NCN",
+    "XTX",
+    "IBI"
+  ],
+  "key": {
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "N": {
+      "item": "oc2r:network_connector"
+    },
+    "C": {
+      "item": "oc2r:network_cable"
+    },
+    "X": {
+      "item": "oc2r:bus_interface"
+    },
+    "T": {
+      "item": "oc2r:transistor"
+    },
+    "B": {
+      "item": "oc2r:circuit_board"
+    }
+  },
+  "result": {
+    "id": "oc2r:vxlan_hub",
+    "count": 1
+  }
+}

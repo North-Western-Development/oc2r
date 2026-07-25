@@ -43,7 +43,7 @@ public class InternetCardSpec {
 
         allowedHosts = builder.comment("A list of hosts (IPs) that VMs are allowed to access",
             "Only denied hosts or allowed hosts may have a value, or an error will occur"
-        ).defineListAllowEmpty("deniedHosts", List.of(), obj -> obj instanceof String && !((String) obj).trim().isEmpty());
+        ).defineListAllowEmpty("allowedHosts", List.of(), obj -> obj instanceof String && !((String) obj).trim().isEmpty());
 
         defaultNameServer = builder.comment("The default nameserver to be used")
             .define("defaultNameServer", "1.1.1.1");
