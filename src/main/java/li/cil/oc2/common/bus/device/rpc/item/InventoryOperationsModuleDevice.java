@@ -7,6 +7,7 @@ import li.cil.oc2.api.bus.device.object.Parameter;
 import li.cil.oc2.api.capabilities.Robot;
 import li.cil.oc2.api.util.RobotOperationSide;
 import li.cil.oc2.common.capabilities.Capabilities;
+import li.cil.oc2.common.util.ItemStackUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -108,7 +109,7 @@ public final class InventoryOperationsModuleDevice extends AbstractItemRPCDevice
 
         if (!stack.isEmpty()) {
             dropped += stack.getCount();
-            entity.spawnAtLocation(stack);
+            ItemStackUtils.spawnAsEntity(entity.level(), entity.position(), stack, direction);
         }
 
         return dropped;
@@ -151,7 +152,7 @@ public final class InventoryOperationsModuleDevice extends AbstractItemRPCDevice
 
         if (!stack.isEmpty()) {
             dropped += stack.getCount();
-            entity.spawnAtLocation(stack);
+            ItemStackUtils.spawnAsEntity(entity.level(), entity.position(), stack, direction);
         }
 
         return dropped;
