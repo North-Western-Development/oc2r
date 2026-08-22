@@ -19,6 +19,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Tier;
@@ -46,7 +47,7 @@ import java.util.List;
 public final class BlockOperationsModuleDevice extends AbstractItemRPCDevice {
     private static final String LAST_OPERATION_TAG_NAME = "cooldown";
 
-    private static final int COOLDOWN = TickUtils.toTicks(Duration.ofSeconds(1));
+    private static final int COOLDOWN = TickUtils.toTicks(Duration.ofMillis((long) (Config.robotCooldown * 1000)));
 
     ///////////////////////////////////////////////////////////////////
 
@@ -77,6 +78,18 @@ public final class BlockOperationsModuleDevice extends AbstractItemRPCDevice {
     }
 
     @Callback
+    public BlockState getBlock() {
+        return getBlock(null);
+    }
+
+    @Callback
+    public BlockState getBlock(@Parameter("side") @Nullable final RobotOperationSide side) {
+        final Direction direction = RobotOperationSide.toGlobal(entity, side);
+        final BlockPos pos = entity.blockPosition().relative(direction);
+        return entity.level().getBlockState(pos);
+    }
+
+    @Callback
     public boolean excavate() {
         return excavate(null);
     }
@@ -87,10 +100,9 @@ public final class BlockOperationsModuleDevice extends AbstractItemRPCDevice {
             return false;
         }
 
-        beginCooldown();
-
         final Level level = entity.level();
         if (!(level instanceof final ServerLevel serverLevel)) {
+            beginCooldown();
             return false;
         }
 
@@ -100,9 +112,13 @@ public final class BlockOperationsModuleDevice extends AbstractItemRPCDevice {
         final List<ItemEntity> oldItems = getItemsInRange();
 
         final Direction direction = RobotOperationSide.toGlobal(entity, side);
-        if (!tryHarvestBlock(serverLevel, entity.blockPosition().relative(direction))) {
+        final BlockPos pos = entity.blockPosition().relative(direction);
+        final int cooldown = tryHarvestBlock(serverLevel, pos);
+        if (cooldown < 0) {
+            beginCooldown();
             return false;
         }
+        beginCooldown(cooldown);
 
         final List<ItemEntity> droppedItems = getItemsInRange();
         droppedItems.removeAll(oldItems);
@@ -212,62 +228,77 @@ public final class BlockOperationsModuleDevice extends AbstractItemRPCDevice {
     ///////////////////////////////////////////////////////////////////
 
     private void beginCooldown() {
-        lastOperation = entity.level().getGameTime();
+        beginCooldown(COOLDOWN);
     }
 
-    private boolean isOnCooldown() {
-        return entity.level().getGameTime() - lastOperation < COOLDOWN;
+    private void beginCooldown(int cooldown) {
+        lastOperation = entity.level().getGameTime() + cooldown;
+    }
+
+    @Callback
+    public boolean isOnCooldown() {
+        return getCooldown() > 0;
+    }
+
+    @Callback
+    public int getCooldown() {
+        return (int) (-Math.min(0, entity.level().getGameTime() - lastOperation) / 20.0); // Convert to seconds for convenience
     }
 
     private List<ItemEntity> getItemsInRange() {
         return entity.level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(2));
     }
 
-    private boolean tryHarvestBlock(final ServerLevel level, final BlockPos blockPos) {
+    private int tryHarvestBlock(final ServerLevel level, final BlockPos blockPos) {
         // This method is based on PlayerInteractionManager::tryHarvestBlock. Simplified for our needs.
         final BlockState blockState = level.getBlockState(blockPos);
         if (blockState.isAir()) {
-            return false;
+            return -1;
         }
 
         final ServerPlayer player = FakePlayerUtils.getFakePlayer(level, entity);
         final int experience = net.minecraftforge.common.ForgeHooks.onBlockBreakEvent(level, GameType.DEFAULT_MODE, player, blockPos);
         if (experience == -1) {
-            return false;
+            return -1;
         }
 
         final BlockEntity blockEntity = level.getBlockEntity(blockPos);
         final Block block = blockState.getBlock();
+        if (block.defaultDestroyTime() < 0) {
+            return -1;
+        }
+
         final boolean isCommandBlock = block instanceof CommandBlock || block instanceof StructureBlock || block instanceof JigsawBlock;
         if (isCommandBlock && !player.canUseGameMasterBlocks()) {
-            return false;
+            return -1;
         }
 
         if (player.blockActionRestricted(level, blockPos, GameType.DEFAULT_MODE)) {
-            return false;
+            return -1;
         }
 
         final Tier toolTier = TierSortingRegistry.byName(Config.blockOperationsModuleToolTier);
         if (toolTier == null || !TierSortingRegistry.isCorrectTierForDrops(toolTier, blockState)) {
-            return false;
+            return -1;
         }
 
         if (!ForgeEventFactory.doPlayerHarvestCheck(player, blockState, true)) {
-            return false;
+            return -1;
         }
 
         if (identity.hurt(1, level.random, null)) {
-            return false;
+            return -1;
         }
 
         if (!blockState.onDestroyedByPlayer(level, blockPos, player, true, level.getFluidState(blockPos))) {
-            return false;
+            return -1;
         }
 
+        final int cooldown = Math.round(block.defaultDestroyTime() * 30 / toolTier.getSpeed());
         block.destroy(level, blockPos, blockState);
         block.playerDestroy(level, player, blockPos, blockState, blockEntity, ItemStack.EMPTY);
 
-        return true;
+        return cooldown;
     }
 
     @Nullable

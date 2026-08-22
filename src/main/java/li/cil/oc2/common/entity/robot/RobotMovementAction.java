@@ -2,6 +2,7 @@
 
 package li.cil.oc2.common.entity.robot;
 
+import li.cil.oc2.common.config.Config;
 import li.cil.oc2.common.entity.Entities;
 import li.cil.oc2.common.entity.Robot;
 import li.cil.oc2.common.util.NBTTagIds;
@@ -23,7 +24,7 @@ public final class RobotMovementAction extends AbstractRobotAction {
 
     ///////////////////////////////////////////////////////////////////
 
-    private static final float MOVEMENT_SPEED = 1f / TickUtils.toTicks(Duration.ofSeconds(1)); // blocks per tick
+    private static final float MOVEMENT_SPEED = 1f / TickUtils.toTicks(Duration.ofMillis((long) (Config.robotCooldown * 1000))); // blocks per tick
 
     private static final String DIRECTION_TAG_NAME = "direction";
     private static final String ORIGIN_TAG_NAME = "origin";

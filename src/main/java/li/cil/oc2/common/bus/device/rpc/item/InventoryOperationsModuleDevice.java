@@ -108,7 +108,11 @@ public final class InventoryOperationsModuleDevice extends AbstractItemRPCDevice
 
         if (!stack.isEmpty()) {
             dropped += stack.getCount();
-            entity.spawnAtLocation(stack);
+
+            final BlockPos pos = entity.blockPosition().relative(direction);
+            final ItemEntity itemEntity = new ItemEntity(entity.level(), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
+            itemEntity.setDefaultPickUpDelay();
+            entity.level().addFreshEntity(itemEntity);
         }
 
         return dropped;
@@ -151,7 +155,11 @@ public final class InventoryOperationsModuleDevice extends AbstractItemRPCDevice
 
         if (!stack.isEmpty()) {
             dropped += stack.getCount();
-            entity.spawnAtLocation(stack);
+
+            final BlockPos pos = entity.blockPosition().relative(direction);
+            final ItemEntity itemEntity = new ItemEntity(entity.level(), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
+            itemEntity.setDefaultPickUpDelay();
+            entity.level().addFreshEntity(itemEntity);
         }
 
         return dropped;
