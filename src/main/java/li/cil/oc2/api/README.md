@@ -77,12 +77,28 @@ This can be useful for various things. For example:
     - Close and delete the file in `unmount()`.
     - Close the file in `suspend()`.
 
-### No Active Back-channel
+### Subscriptions and Events
 
-Unlike some other computer mods (e.g. OpenComputers and ComputerCraft), there is no *active* back-channel in the
-`RPCDevice` API. In other words, it is not possible for `RPCDevices` to raise events in the virtual machines. The only
-way to provide data to the virtual machines is as values returned from exposed methods. Programs running in the virtual
-machines will always have to poll for changed data.
+The `RPCDevice` API also lets devices raise events in the virtual machine, by implementing the `RPCEventSource`
+interface.  If using `ObjectDevice`, it will automatically notice if the wrapped object implements `RPCEventSource`; if
+implementing `RPCDevice` directly you can either implement `RPCEventSource` on the same type, or override the
+`asEventSource` method to return the actual event source. The VM will then be able to subscribe to events from the
+device, which can be sent by calling `postEvent` on the `IEventSink` passed to `subscribe`. An example of this is
+the built-in `RedstoneInterfaceBlockEntity` device.
+
+#### Note: This is mostly a new feature and there are several caveats to keep in mind when using it.
+
+- If subscriptions are used on or before OC2R version 2.2.12, they can cause a server crash if too many messages are
+  sent at once. To be safe, do not send any event in the same tick as another message, or depend on a later minimum
+  version of OC2R.
+- Right now, if a lot of messages are sent and the VM does not listen for them, some may be dropped; in theory the VM
+  can detect this, but none of the existing libraries do (see next point). You cannot depend on the events being
+  reliably delivered, and must use some other communication channel if reliability is a requirement.  A method call
+  should not have this issue unless the results and all the (subscribed to) events in that tick put together are more
+  than 4 KiB, though be aware that if the method call causes a state change, that might itself cause some events.
+- The on-the-"wire" event and subscription format is probably stable, but the VM's userspace python and lua libraries do
+  not easily support them yet, and often silently discard events when expecting a different sort of message. Better
+  support is actively being worked on.
 
 ## The `BlockDeviceProvider` and `ItemDeviceProvider`
 

@@ -5,10 +5,11 @@ package li.cil.oc2.api.bus.device.rpc;
 import java.util.*;
 
 /**
- * Provides an interface for an RPC event source. Blocks which whish to provide
- * push notifications via the /dev/hvc0 serial devices should implement this.
+ * Provides an interface for an RPC event source. Blocks which wish to provide
+ * push notifications via the RPC bus serial device should implement this.
  * It is generally recommended to *also* provide documentation and a list of
- * events by implementing DocumentedDevice and providing a listEvents() callback
+ * events by implementing {@link li.cil.oc2.api.bus.device.object.DocumentedDevice
+ * DocumentedDevice} and providing a {@code listEvents()} callback
  * <p>
  */
 public interface RPCEventSource {
