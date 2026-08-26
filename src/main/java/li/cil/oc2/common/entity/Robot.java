@@ -207,11 +207,13 @@ public final class Robot extends Entity implements li.cil.oc2.api.capabilities.R
             return optional;
         }
 
-        for (final Device device : virtualMachine.busController.getDevices()) {
-            if (device instanceof final ICapabilityProvider capabilityProvider) {
-                final LazyOptional<T> value = capabilityProvider.getCapability(capability, side);
-                if (value.isPresent()) {
-                    return value;
+        if (virtualMachine != null) {
+            for (final Device device : virtualMachine.busController.getDevices()) {
+                if (device instanceof final ICapabilityProvider capabilityProvider) {
+                    final LazyOptional<T> value = capabilityProvider.getCapability(capability, side);
+                    if (value.isPresent()) {
+                        return value;
+                    }
                 }
             }
         }
