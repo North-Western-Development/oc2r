@@ -136,14 +136,16 @@ public class Terminal {
 
     @SuppressWarnings("unused")
     public static final class Color {
-        static final int BLACK = 0;
-        static final int RED = 1;
-        static final int GREEN = 2;
-        static final int YELLOW = 3;
-        static final int BLUE = 4;
-        static final int MAGENTA = 5;
-        static final int CYAN = 6;
-        static final int WHITE = 7;
+        public static final int BLACK = 0;
+        public static final int RED = 1;
+        public static final int GREEN = 2;
+        public static final int YELLOW = 3;
+        public static final int BLUE = 4;
+        public static final int MAGENTA = 5;
+        public static final int CYAN = 6;
+        public static final int WHITE = 7;
+        public static final int DEFAULT_FG = 8;
+        public static final int DEFAULT_BG = 9;
     }
 
     public enum State { // Must be public for serialization.
@@ -790,6 +792,8 @@ public class Terminal {
             0xFF3ADE, // Magenta
             0x27DDFF, // Cyan
             0xFFFFFF, // White
+            0xEEEEEE, // Default Foreground
+            0x000000, // Default Background
         };
 
         public static final int[] COLORS = {
@@ -801,6 +805,8 @@ public class Terminal {
             0xDD33CC, // Magenta
             0x22CCDD, // Cyan
             0xEEEEEE, // White
+            0xEEEEEE, // Default Foreground
+            0x000000, // Default Background
         };
 
         public static final int[] DIM_COLORS = {
@@ -812,6 +818,8 @@ public class Terminal {
             0x771177, // Magenta
             0x116677, // Cyan
             0x777777, // White
+            0xEEEEEE, // Default Foreground
+            0x000000, // Default Background
         };
 
         public static final int[] COLORS_256 = {
