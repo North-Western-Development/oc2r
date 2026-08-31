@@ -7,21 +7,15 @@ import net.minecraft.world.entity.Entity;
 
 import javax.annotation.Nullable;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * A more restrictive version of {@link Side}, intended for robot operation APIs.
  */
 public enum RobotOperationSide {
-    FRONT(Direction.SOUTH),
-    front(FRONT),
-    f(FRONT),
-
-    UP(Direction.UP),
-    up(UP),
-    u(UP),
-
-    DOWN(Direction.DOWN),
-    down(DOWN),
-    d(DOWN),
+    @SerializedName(value="front", alternate={"FRONT", "f"}) FRONT(Direction.SOUTH),
+    @SerializedName(value="up", alternate={"TOP", "top", "UP", "u"}) UP(Direction.UP),
+    @SerializedName(value="down", alternate={"BOTTOM", "bottom", "DOWN", "d"}) DOWN(Direction.DOWN),
     ;
 
     private final Direction direction;
