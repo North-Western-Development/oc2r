@@ -61,6 +61,10 @@ Device.__tostring = function(self)
         i = i + 1
       end
     end
+
+    if method.returnValueDescription then
+      doc = doc .. "  Returns: " .. method.returnValueDescription .. "\n"
+    end
   end
 
   return doc

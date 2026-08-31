@@ -50,6 +50,10 @@ class Device:
                             doc += "args" + str(i)
                         doc += "  " + p["description"] + "\n"
                     i += 1
+
+            if method.get("returnValueDescription"):
+                doc += f"  Returns: {method['returnValueDescription']}\n"
+
         return doc
 
 
