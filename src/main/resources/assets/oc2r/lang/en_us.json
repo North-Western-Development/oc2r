@@ -66,6 +66,8 @@
   "item.oc2r.file_import_export_card.desc": "Imports and exports files from and into your real file system.",
   "item.oc2r.robot": "Robot",
   "item.oc2r.robot.desc": "A mobile Computer. Use a Scrench to pick it back up.",
+  "item.oc2r.tablet": "Tablet",
+  "item.oc2r.tablet.desc": "A Computer you can carry on your person.",
   "item.oc2r.inventory_operations_module": "Inventory Operations Module",
   "item.oc2r.inventory_operations_module.desc": "Moves items in, into and out of the Robot's inventory.",
   "item.oc2r.block_operations_module": "Block Operations Module",
@@ -90,7 +92,6 @@
   "item.oc2r.silicon_wafer.desc": "A wafer ready for processor construction.",
   "item.oc2r.raw_silicon_wafer": "Raw Silicon Wafer",
   "item.oc2r.raw_silicon_wafer.desc": "A wafer with small imperfections that must be cooked out.",
-
 
   "entity.oc2r.robot": "Robot",
 

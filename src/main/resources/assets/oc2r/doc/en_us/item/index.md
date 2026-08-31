@@ -17,3 +17,4 @@ This index lists all documented items. If you're looking for a block, see the [b
 - [Robot](robot.md)
 - [Scrench](wrench.md)
 - [Sound Card](sound_card.md)
+- [Tablet](tablet.md)

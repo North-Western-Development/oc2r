@@ -4,13 +4,12 @@
   "required": true,
   "package": "li.cil.oc2.common.mixin",
   "refmap": "mixins.oc2r.refmap.json",
-  "mixins": [
-    "ServerChunkCacheMixin"
-  ],
+  "mixins": ["ServerChunkCacheMixin", "EntityMixin"],
   "client": [
     "FrustumMixin",
     "LevelRendererMixin",
-    "MinecraftMixin"
+    "MinecraftMixin",
+    "CreativeClientMixin"
   ],
   "injectors": {
     "defaultRequire": 1

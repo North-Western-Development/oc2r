@@ -1,0 +1,14 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "oc2r:item/terminal_off"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "oc2r:tablet_on": 1.0
+      },
+      "model": "oc2r:item/terminal_on"
+    }
+  ]
+}

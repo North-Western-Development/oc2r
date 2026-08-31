@@ -9,6 +9,7 @@ import li.cil.oc2.api.capabilities.NetworkInterface;
 import li.cil.oc2.api.capabilities.RedstoneEmitter;
 import li.cil.oc2.api.capabilities.Robot;
 import li.cil.oc2.api.capabilities.TerminalUserProvider;
+import li.cil.oc2.common.vm.tablet.ITabletData;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
@@ -31,6 +32,8 @@ public final class CapabilityRegistry {
     static final Capability<NetworkInterface> NETWORK_INTERFACE = CapabilityManager.get(new CapabilityToken<>() { });
     static final Capability<TerminalUserProvider> TERMINAL_USER_PROVIDER = CapabilityManager.get(new CapabilityToken<>() { });
     static final Capability<Robot> ROBOT = CapabilityManager.get(new CapabilityToken<>() { });
+
+    static final Capability<ITabletData> TABLET_DATA = CapabilityManager.get(new CapabilityToken<>() { });
 
     ///////////////////////////////////////////////////////////////////
 

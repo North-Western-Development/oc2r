@@ -62,6 +62,19 @@ public final class Network {
         registerMessage(OpenRobotInventoryMessage.class, OpenRobotInventoryMessage::new, NetworkDirection.PLAY_TO_SERVER);
         registerMessage(OpenRobotTerminalMessage.class, OpenRobotTerminalMessage::new, NetworkDirection.PLAY_TO_SERVER);
 
+        registerMessage(TabletTerminalOutputMessage.class, TabletTerminalOutputMessage::new, NetworkDirection.PLAY_TO_CLIENT);
+        registerMessage(TabletTerminalInputMessage.class, TabletTerminalInputMessage::new, NetworkDirection.PLAY_TO_SERVER);
+        registerMessage(TabletRunStateMessage.class, TabletRunStateMessage::new, NetworkDirection.PLAY_TO_CLIENT);
+        registerMessage(TabletBusStateMessage.class, TabletBusStateMessage::new, NetworkDirection.PLAY_TO_CLIENT);
+        registerMessage(TabletBootErrorMessage.class, TabletBootErrorMessage::new, NetworkDirection.PLAY_TO_CLIENT);
+        registerMessage(TabletPowerMessage.class, TabletPowerMessage::new, NetworkDirection.PLAY_TO_SERVER);
+        registerMessage(TabletItemsMessage.class, TabletItemsMessage::new, NetworkDirection.PLAY_TO_CLIENT);
+        registerMessage(TabletEnergyMessage.class, TabletEnergyMessage::new, NetworkDirection.PLAY_TO_CLIENT);
+        registerMessage(TabletClientUpdateMessage.class, TabletClientUpdateMessage::new, NetworkDirection.PLAY_TO_CLIENT);
+        registerMessage(TabletRemovalMessage.class, TabletRemovalMessage::new, NetworkDirection.PLAY_TO_SERVER);
+        registerMessage(OpenTabletInventoryMessage.class, OpenTabletInventoryMessage::new, NetworkDirection.PLAY_TO_SERVER);
+        registerMessage(OpenTabletTerminalMessage.class, OpenTabletTerminalMessage::new, NetworkDirection.PLAY_TO_SERVER);
+
         registerMessage(DiskDriveFloppyMessage.class, DiskDriveFloppyMessage::new, NetworkDirection.PLAY_TO_CLIENT);
         registerMessage(FirmwareFlasherMessage.class, FirmwareFlasherMessage::new, NetworkDirection.PLAY_TO_CLIENT);
 

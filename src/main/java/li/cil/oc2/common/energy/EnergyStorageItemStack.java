@@ -41,7 +41,13 @@ public final class EnergyStorageItemStack implements IEnergyStorage, ICapability
 
     @Override
     public int extractEnergy(final int maxExtract, final boolean simulate) {
-        return 0;
+        final int stored = getEnergyStored();
+        final int extract = Math.min(maxExtract, stored);
+        if (!simulate) {
+            NBTUtils.getOrCreateChildTag(stack.getOrCreateTag(), tagPath)
+                .putInt(FixedEnergyStorage.STORED_TAG_NAME, stored - extract);
+        }
+        return extract;
     }
 
     @Override
@@ -56,7 +62,7 @@ public final class EnergyStorageItemStack implements IEnergyStorage, ICapability
 
     @Override
     public boolean canExtract() {
-        return false; // We don't want our items to be usable as batteries.
+        return true;
     }
 
     @Override

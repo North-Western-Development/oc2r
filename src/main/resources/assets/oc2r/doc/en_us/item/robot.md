@@ -7,7 +7,7 @@ Robots have a fixed-size inventory and sport a state-of-the-art energy storage. 
 
 In their default configuration, robots cannot interact with their own inventory. Use an [inventory operations module](inventory_operations_module.md) to enable robots to move items in their own inventory, as well as to insert and extract items to and from other inventories.
 
-To recharge a robot, it is recommended to make use the [charger](../block/charger.md). It is possible for robots to recharge themselves by simply moving on top of a charger. Alternatively, they may be placed into an inventory on top of the charger.
+To recharge a robot, it is recommended to make use of the [charger](../block/charger.md). It is possible for robots to recharge themselves by simply moving on top of a charger. Alternatively, they may be placed into an inventory on top of the charger.
 
 The default Linux distribution provides a utility Lua library, *robot*, that eases controlling robots. The underlying API offers asynchronous methods for movement. The library implements synchronous alternatives, making sequential programming more convenient.
 

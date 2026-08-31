@@ -2,6 +2,7 @@
 
 package li.cil.oc2.common.bus.device.util;
 
+import li.cil.oc2.common.vm.tablet.TabletState;
 import li.cil.oc2.api.bus.device.Device;
 import li.cil.oc2.api.bus.device.ItemDevice;
 import li.cil.oc2.api.bus.device.provider.BlockDeviceProvider;
@@ -50,6 +51,10 @@ public final class Devices {
 
     public static ItemDeviceQuery makeQuery(final Entity entity, final ItemStack stack) {
         return new ItemQuery(entity, stack);
+    }
+
+    public static ItemDeviceQuery makeQuery(final TabletState item, final ItemStack stack) {
+        return new ItemQuery(item, stack);
     }
 
     public static Optional<List<Invalidatable<BlockDeviceInfo>>> getDevices(final BlockDeviceQuery query) {
@@ -134,18 +139,23 @@ public final class Devices {
     private record ItemQuery(
         @Nullable BlockEntity blockEntity,
         @Nullable Entity entity,
+        @Nullable TabletState item,
         ItemStack stack
     ) implements ItemDeviceQuery {
         public ItemQuery(final ItemStack stack) {
-            this(null, null, stack);
+            this(null, null, null, stack);
         }
 
         public ItemQuery(final BlockEntity blockEntity, final ItemStack stack) {
-            this(blockEntity, null, stack);
+            this(blockEntity, null, null, stack);
         }
 
         public ItemQuery(final Entity entity, final ItemStack stack) {
-            this(null, entity, stack);
+            this(null, entity, null, stack);
+        }
+
+        public ItemQuery(final TabletState item, final ItemStack stack) {
+            this(null, null, item, stack);
         }
 
         @Override
@@ -156,6 +166,11 @@ public final class Devices {
         @Override
         public Optional<Entity> getContainerEntity() {
             return Optional.ofNullable(entity);
+        }
+
+        @Override
+        public Optional<TabletState> getContainerTabletState() {
+            return Optional.ofNullable(item);
         }
 
         @Override

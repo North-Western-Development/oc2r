@@ -106,6 +106,8 @@ public final class Items {
     public static final RegistryObject<Item> RAW_SILICON_WAFER = register("raw_silicon_wafer", ModItem::new);
     public static final RegistryObject<Item> CIRCUIT_BOARD = register("circuit_board", ModItem::new);
 
+    public static final RegistryObject<Item> TABLET = register("tablet", TabletItem::new);
+
     ///////////////////////////////////////////////////////////////////
 
     public static void initialize(FMLJavaModLoadingContext context) {
@@ -126,7 +128,8 @@ public final class Items {
         return register(block, ModBlockItem::new);
     }
 
-    private static <TBlock extends Block, TItem extends Item> RegistryObject<TItem> register(final RegistryObject<TBlock> block, final Function<TBlock, TItem> factory) {
+    private static <TBlock extends Block, TItem extends Item> RegistryObject<TItem> register(
+            final RegistryObject<TBlock> block, final Function<TBlock, TItem> factory) {
         return register(block.getId().getPath(), () -> factory.apply(block.get()));
     }
 }

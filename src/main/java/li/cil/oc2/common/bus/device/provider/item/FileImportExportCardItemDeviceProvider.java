@@ -56,6 +56,13 @@ public final class FileImportExportCardItemDeviceProvider extends AbstractItemDe
             }
         }
 
+        if (query.getContainerTabletState().isPresent()) {
+            final LazyOptional<TerminalUserProvider> capability =
+                LazyOptional.of(() -> query.getContainerTabletState().get()).cast();
+
+            return capability.resolve();
+        }
+
         return Optional.empty();
     }
 }

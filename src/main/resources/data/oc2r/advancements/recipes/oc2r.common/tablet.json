@@ -1,0 +1,48 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "oc2r:tablet"
+    ]
+  },
+  "criteria": {
+    "has_transistor": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "oc2r:transistor"
+            ]
+          }
+        ]
+      }
+    },
+    "has_circuit_board": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "oc2r:circuit_board"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "oc2r:tablet"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_transistor",
+      "has_circuit_board",
+      "has_the_recipe"
+    ]
+  ]
+}
+

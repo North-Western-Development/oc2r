@@ -4,6 +4,7 @@ package li.cil.oc2.common.util;
 
 import li.cil.oc2.api.bus.device.provider.BlockDeviceQuery;
 import li.cil.oc2.api.bus.device.provider.ItemDeviceQuery;
+import li.cil.oc2.common.vm.tablet.TabletState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -34,6 +35,11 @@ public final class LocationSupplierUtils {
         final Optional<Entity> entity = query.getContainerEntity();
         if (entity.isPresent()) {
             return () -> BlockLocation.ofOptional(entity.get());
+        }
+
+        final Optional<TabletState> state = query.getContainerTabletState();
+        if (state.isPresent()) {
+            return () -> BlockLocation.ofOptional(state.get());
         }
 
         return Optional::empty;

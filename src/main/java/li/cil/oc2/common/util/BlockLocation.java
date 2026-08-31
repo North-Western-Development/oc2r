@@ -3,6 +3,7 @@
 package li.cil.oc2.common.util;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -11,6 +12,8 @@ import java.lang.ref.WeakReference;
 import java.util.Objects;
 import java.util.Optional;
 
+import li.cil.oc2.common.vm.tablet.TabletState;
+
 public record BlockLocation(WeakReference<LevelAccessor> level, BlockPos blockPos) {
     public static BlockLocation of(final Entity entity) {
         return new BlockLocation(new WeakReference<>(entity.level()), entity.blockPosition());
@@ -18,6 +21,13 @@ public record BlockLocation(WeakReference<LevelAccessor> level, BlockPos blockPo
 
     public static BlockLocation of(final BlockEntity blockEntity) {
         return new BlockLocation(new WeakReference<>(blockEntity.getLevel()), blockEntity.getBlockPos());
+    }
+
+    public static BlockLocation of(final ServerPlayer player) {
+        WeakReference<LevelAccessor> level = new WeakReference<>(player.level());
+        BlockPos position = player.blockPosition();
+
+        return new BlockLocation(level, position);
     }
 
     public static Optional<BlockLocation> ofOptional(final Entity entity) {
@@ -34,6 +44,13 @@ public record BlockLocation(WeakReference<LevelAccessor> level, BlockPos blockPo
         } else {
             return Optional.empty();
         }
+    }
+
+    public static Optional<BlockLocation> ofOptional(final TabletState state) {
+        if (state.getTerminalUser() != null) {
+            return Optional.of(of(state.getTerminalUser()));
+        }
+        return Optional.empty();
     }
 
     public Optional<LevelAccessor> tryGetLevel() {

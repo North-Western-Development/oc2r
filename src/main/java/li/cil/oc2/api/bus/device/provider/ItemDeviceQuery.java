@@ -4,6 +4,7 @@ package li.cil.oc2.api.bus.device.provider;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import li.cil.oc2.common.vm.tablet.TabletState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.Optional;
@@ -27,6 +28,13 @@ public interface ItemDeviceQuery {
      * @return the {@link Entity} hosting the device, if any.
      */
     Optional<Entity> getContainerEntity();
+
+    /**
+     * The {@link TabletState} that holds the item this query is for.
+     *
+     * @return the {@link TabletState} hosting the device, if any.
+     */
+    Optional<TabletState> getContainerTabletState();
 
     /**
      * The item stack this query is performed for.

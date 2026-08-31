@@ -12,7 +12,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
 public final class ItemGroup {
-    public static final DeferredRegister<CreativeModeTab> TAB_REGISTER = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, API.MOD_ID);
+    public static final DeferredRegister<CreativeModeTab> TAB_REGISTER = DeferredRegister
+            .create(Registries.CREATIVE_MODE_TAB, API.MOD_ID);
 
     @SuppressWarnings("unused")
     public static final RegistryObject<CreativeModeTab> COMMON_TAB = TAB_REGISTER.register("common", () -> CreativeModeTab.builder()
@@ -40,6 +41,7 @@ public final class ItemGroup {
             output.accept(Items.WRENCH.get());
             output.accept(Items.MANUAL.get());
             output.accept(RobotItem.getRobotWithFlash());
+            output.accept(TabletItem.getTabletWithFlash());
             output.accept(Items.NETWORK_CABLE.get());
             output.accept(Items.MEMORY_SMALL.get());
             output.accept(Items.MEMORY_MEDIUM.get());

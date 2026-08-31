@@ -1,7 +1,6 @@
 package li.cil.oc2.common.event;
 
 import li.cil.oc2.api.API;
-import li.cil.oc2.common.config.AsyncConfig;
 import li.cil.oc2.common.util.AsyncUtils;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;

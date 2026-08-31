@@ -1,0 +1,45 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IBI",
+    "DTD",
+    "ICI"
+  ],
+  "key": {
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "B": {
+      "tag": "minecraft:stone_buttons"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "T": {
+      "item": "oc2r:transistor"
+    },
+    "C": {
+      "item": "oc2r:circuit_board"
+    }
+  },
+  "result": {
+    "item": "oc2r:tablet",
+    "nbt": {
+      "oc2r": {
+        "items": {
+          "translation{key='gui.oc2r.device_type.flash_memory', args=[]}": {
+            "Items": [
+              {
+                "Slot": 0,
+                "Count": 1,
+                "id": "oc2r:flash_memory_custom"
+              }
+            ],
+            "Size": 1
+          }
+        }
+      }
+    }
+  }
+}
+

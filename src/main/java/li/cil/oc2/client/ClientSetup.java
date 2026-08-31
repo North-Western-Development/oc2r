@@ -2,6 +2,7 @@
 
 package li.cil.oc2.client;
 
+import li.cil.oc2.api.API;
 import li.cil.oc2.client.gui.*;
 import li.cil.oc2.client.item.CustomItemColors;
 import li.cil.oc2.client.item.CustomItemModelProperties;
@@ -17,8 +18,13 @@ import li.cil.oc2.common.blockentity.BlockEntities;
 import li.cil.oc2.common.config.Config;
 import li.cil.oc2.common.container.Containers;
 import li.cil.oc2.common.entity.Entities;
+import li.cil.oc2.common.item.Items;
+import li.cil.oc2.common.item.TabletItem;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent.RegisterGeometryLoaders;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
@@ -53,7 +59,14 @@ public final class ClientSetup {
             MenuScreens.register(Containers.MONITOR.get(), MonitorDisplayScreen::new);
             MenuScreens.register(Containers.ROBOT.get(), RobotContainerScreen::new);
             MenuScreens.register(Containers.ROBOT_TERMINAL.get(), RobotTerminalScreen::new);
+            MenuScreens.register(Containers.TABLET.get(), TabletContainerScreen::new);
+            MenuScreens.register(Containers.TABLET_TERMINAL.get(), TabletTerminalScreen::new);
             MenuScreens.register(Containers.NETWORK_TUNNEL.get(), NetworkTunnelScreen::new);
+
+            ItemProperties.register(Items.TABLET.get(), ResourceLocation.fromNamespaceAndPath(API.MOD_ID, TabletItem.TABLET_ON_TAG_NAME), (stack, level, living, id) -> {
+                if (stack.getTag() == null) return 0.0F;
+                return stack.getTag().getBoolean(TabletItem.TABLET_ON_TAG_NAME) ? 1.0F : 0.0F;
+            });
 
             // We need to register this manually, because static init throws errors when running data generation.
             MinecraftForge.EVENT_BUS.register(ProjectorDepthRenderer.class);

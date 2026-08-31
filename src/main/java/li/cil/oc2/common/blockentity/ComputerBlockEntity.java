@@ -224,7 +224,7 @@ public final class ComputerBlockEntity extends ModBlockEntity implements Termina
         super.handleUpdateTag(tag);
 
         NBTSerialization.deserialize(tag.getCompound(TERMINAL_TAG_NAME), terminal);
-        
+
         // Only update client-side state on the client
         if (level != null && level.isClientSide()) {
             virtualMachine.setBusStateClient(CommonDeviceBusController.BusState.values()[tag.getInt(AbstractVirtualMachine.BUS_STATE_TAG_NAME)]);

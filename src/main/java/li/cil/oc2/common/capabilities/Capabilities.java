@@ -8,6 +8,7 @@ import li.cil.oc2.api.capabilities.NetworkInterface;
 import li.cil.oc2.api.capabilities.RedstoneEmitter;
 import li.cil.oc2.api.capabilities.Robot;
 import li.cil.oc2.api.capabilities.TerminalUserProvider;
+import li.cil.oc2.common.vm.tablet.ITabletData;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -50,6 +51,10 @@ public final class Capabilities {
 
     public static Capability<Robot> robot() {
         return CapabilityRegistry.ROBOT;
+    }
+
+    public static Capability<ITabletData> tabletData() {
+        return CapabilityRegistry.TABLET_DATA;
     }
 
     public static void registerCapabilities(final Consumer<Class<?>> registry) {
